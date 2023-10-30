@@ -4,7 +4,7 @@ from setuptools import setup, find_packages
 from distutils.util import convert_path
 
 
-_package_name = "my_template"
+_package_name = "beans_logging_fastapi"
 
 _namespace_dict = {}
 _version_path = convert_path(f"{_package_name}/__version__.py")

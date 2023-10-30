@@ -4,7 +4,7 @@
 import sys
 import logging
 
-from my_template import MyBase
+from beans_logging_fastapi import MyBase
 
 
 logging.basicConfig(stream=sys.stdout, level=logging.INFO)

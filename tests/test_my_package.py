@@ -4,7 +4,7 @@ import logging
 
 import pytest
 
-from my_template import MyBase
+from beans_logging_fastapi import MyBase
 
 
 logger = logging.getLogger(__name__)

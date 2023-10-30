@@ -1,10 +1,10 @@
-# my_template
+# beans_logging_fastapi
 
 [![MIT License](https://img.shields.io/badge/License-MIT-green.svg)](https://choosealicense.com/licenses/mit)
-[![GitHub Workflow Status](https://img.shields.io/github/actions/workflow/status/bybatkhuu/module.python-template/2.build-publish.yml?logo=GitHub)](https://github.com/bybatkhuu/module.python-template/actions/workflows/2.build-publish.yml)
-[![GitHub release (latest SemVer)](https://img.shields.io/github/v/release/bybatkhuu/module.python-template?logo=GitHub)](https://github.com/bybatkhuu/module.python-template/releases)
+[![GitHub Workflow Status](https://img.shields.io/github/actions/workflow/status/bybatkhuu/module.fastapi-logging/2.build-publish.yml?logo=GitHub)](https://github.com/bybatkhuu/module.fastapi-logging/actions/workflows/2.build-publish.yml)
+[![GitHub release (latest SemVer)](https://img.shields.io/github/v/release/bybatkhuu/module.fastapi-logging?logo=GitHub)](https://github.com/bybatkhuu/module.fastapi-logging/releases)
 
-`my_template` is a template for python package.
+`beans_logging_fastapi` is a template for python package.
 
 ## Features
 
@@ -20,7 +20,7 @@
 - **Python (>= v3.7)**
 - **PyPi (>= v21)**
 
-### 2. Install my-template package
+### 2. Install beans-logging-fastapi package
 
 Choose one of the following methods to install the package **[A ~ F]**:
 
@@ -28,34 +28,34 @@ Choose one of the following methods to install the package **[A ~ F]**:
 
 ```sh
 # Install or upgrade package:
-pip install -i https://test.pypi.org/simple -U my-template
+pip install -i https://test.pypi.org/simple -U beans-logging-fastapi
 ```
 
 **B.** Install latest version from **GitHub**
 
 ```sh
 # Install package by git:
-pip install git+https://github.com/bybatkhuu/module.python-template.git
+pip install git+https://github.com/bybatkhuu/module.fastapi-logging.git
 ```
 
 **C.** Install from **pre-built release** files
 
-1. Download **`.whl`** or **`.tar.gz`** file from **releases** - <https://github.com/bybatkhuu/module.python-template/releases>
+1. Download **`.whl`** or **`.tar.gz`** file from **releases** - <https://github.com/bybatkhuu/module.fastapi-logging/releases>
 2. Install with pip:
 
 ```sh
 # Install from .whl file:
-pip install ./my_template-[VERSION]-py3-none-any.whl
+pip install ./beans_logging_fastapi-[VERSION]-py3-none-any.whl
 # Or install from .tar.gz file:
-pip install ./my_template-[VERSION].tar.gz
+pip install ./beans_logging_fastapi-[VERSION].tar.gz
 ```
 
 **D.** Install from **source code** by building package
 
 ```sh
 # Clone repository by git:
-git clone https://github.com/bybatkhuu/module.python-template.git my_template
-cd ./my_template
+git clone https://github.com/bybatkhuu/module.fastapi-logging.git beans_logging_fastapi
+cd ./beans_logging_fastapi
 
 # Install python build tool:
 pip install -U pip build
@@ -66,17 +66,17 @@ python -m build
 _VERSION=$(./scripts/get-version.sh)
 
 # Install from .whl file:
-pip install ./dist/my_template-${_VERSION}-py3-none-any.whl
+pip install ./dist/beans_logging_fastapi-${_VERSION}-py3-none-any.whl
 # Or install from .tar.gz file:
-pip install ./dist/my_template-${_VERSION}.tar.gz
+pip install ./dist/beans_logging_fastapi-${_VERSION}.tar.gz
 ```
 
 **E.** Install with pip editable **development mode** (from source code)
 
 ```sh
 # Clone repository by git:
-git clone https://github.com/bybatkhuu/module.python-template.git my_template
-cd ./my_template
+git clone https://github.com/bybatkhuu/module.fastapi-logging.git beans_logging_fastapi
+cd ./beans_logging_fastapi
 
 # Install with editable development mode:
 pip install -e .
@@ -86,8 +86,8 @@ pip install -e .
 
 ```sh
 # Clone repository by git:
-git clone https://github.com/bybatkhuu/module.python-template.git my_template
-cd ./my_template
+git clone https://github.com/bybatkhuu/module.fastapi-logging.git beans_logging_fastapi
+cd ./beans_logging_fastapi
 
 # Install python dependencies:
 pip install -r ./requirements.txt
@@ -98,23 +98,23 @@ export PYTHONPATH="${PWD}:${PYTHONPATH}"
 
 ## Usage/Examples
 
-To use `my_template`, import the `MyBase` class from the package:
+To use `beans_logging_fastapi`, import the `MyBase` class from the package:
 
 ```python
-from my_template import MyBase, BaseConfig
+from beans_logging_fastapi import MyBase, BaseConfig
 
 my_base = MyBase()
 ```
 
 ### **Simple**
 
-[**`main.py`**](https://github.com/bybatkhuu/module.python-template/blob/main/examples/simple/main.py)
+[**`main.py`**](https://github.com/bybatkhuu/module.fastapi-logging/blob/main/examples/simple/main.py)
 
 ```python
 import sys
 import logging
 
-from my_template import MyBase
+from beans_logging_fastapi import MyBase
 
 
 logging.basicConfig(stream=sys.stdout, level=logging.INFO)
@@ -126,7 +126,7 @@ if __name__ == "__main__":
     logger.info(f" My item => {_my_base.item}")
 ```
 
-Run the [**`examples/simple`**](https://github.com/bybatkhuu/module.python-template/tree/main/examples/simple):
+Run the [**`examples/simple`**](https://github.com/bybatkhuu/module.fastapi-logging/tree/main/examples/simple):
 
 ```sh
 cd ./examples/simple
@@ -156,7 +156,7 @@ python -m pytest -sv
 
 ## Environment Variables
 
-You can use the following environment variables inside [**`.env.example`**](https://github.com/bybatkhuu/module.python-template/blob/main/.env.example) file:
+You can use the following environment variables inside [**`.env.example`**](https://github.com/bybatkhuu/module.fastapi-logging/blob/main/.env.example) file:
 
 ```sh
 # ENV=development
@@ -165,8 +165,8 @@ You can use the following environment variables inside [**`.env.example`**](http
 
 ## Documentation
 
-- [docs](https://github.com/bybatkhuu/module.python-template/blob/main/docs/README.md)
-- [scripts](https://github.com/bybatkhuu/module.python-template/blob/main/docs/scripts/README.md)
+- [docs](https://github.com/bybatkhuu/module.fastapi-logging/blob/main/docs/README.md)
+- [scripts](https://github.com/bybatkhuu/module.fastapi-logging/blob/main/docs/scripts/README.md)
 
 ---
 
