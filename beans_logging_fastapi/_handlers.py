@@ -77,3 +77,6 @@ def add_http_file_json_handler(
         filter=use_http_filter,
         format=formatter,
     )
+
+
+__all__ = ["add_http_file_handler", "add_http_file_json_handler"]

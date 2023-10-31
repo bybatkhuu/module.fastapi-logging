@@ -20,3 +20,6 @@ def use_http_filter(record: dict) -> bool:
         return False
 
     return True
+
+
+__all__ = ["use_http_filter"]

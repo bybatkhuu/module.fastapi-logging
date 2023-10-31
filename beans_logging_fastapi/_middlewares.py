@@ -1,56 +1,41 @@
 # -*- coding: utf-8 -*-
 
-import json
 import time
 from uuid import uuid4
+from typing import Callable, Dict, Any
 
 from fastapi import Request, Response
-from fastapi.concurrency import run_in_threadpool
 from starlette.middleware.base import BaseHTTPMiddleware
 
 from beans_logging import logger
 
 
-class HttpAccessLogMiddleware(BaseHTTPMiddleware):
-    """Http access log middleware for FastAPI.
+class RequestHTTPInfoMiddleware(BaseHTTPMiddleware):
+    """Request HTTP info middleware for FastAPI.
+    Get HTTP info from request header or generate a new one and add it to `request.state.http_info`.
 
     Inherits:
-        BaseHTTPMiddleware: Base HTTP middleware class from starlette.
+        BaseHTTPMiddleware: Base HTTP middleware from Starlette.
 
     Attributes:
-        _DEBUG_FORMAT     (str ): Default http access log debug message format. Defaults to '<n>[{request_id}]</n> {client_host} {user_id} "<u>{method} {url_path}</u> HTTP/{http_version}"'.
-        _MSG_FORMAT       (str ): Default http access log message format. Defaults to '<n><w>[{request_id}]</w></n> {client_host} {user_id} "<u>{method} {url_path}</u> HTTP/{http_version}" {status_code} {content_length}B {response_time}ms'.
-
-        has_proxy_headers (bool): If True, use proxy headers to get http request info. Defaults to False.
-        has_cf_headers    (bool): If True, use cloudflare headers to get http request info. Defaults to False.
-        debug_format      (str ): Http access log debug message format. Defaults to `HttpAccessLogMiddleware._DEBUG_FORMAT`.
-        msg_format        (str ): Http access log message format. Defaults to `HttpAccessLogMiddleware._MSG_FORMAT`.
-        use_debug_log     (bool): If True, use debug log to log http access log. Defaults to True.
+        has_proxy_headers (bool): Whether has proxy headers. Defaults to False.
+        has_cf_headers    (bool): Whether has Cloudflare headers. Defaults to False.
     """
 
-    _DEBUG_FORMAT = '<n>[{request_id}]</n> {client_host} {user_id} "<u>{method} {url_path}</u> HTTP/{http_version}"'
-    _MSG_FORMAT = '<n><w>[{request_id}]</w></n> {client_host} {user_id} "<u>{method} {url_path}</u> HTTP/{http_version}" {status_code} {content_length}B {response_time}ms'
-
     def __init__(
-        self,
-        app,
-        has_proxy_headers: bool = False,
-        has_cf_headers: bool = False,
-        debug_format: str = _DEBUG_FORMAT,
-        msg_format: str = _MSG_FORMAT,
-        use_debug_log: bool = True,
+        self, app, has_proxy_headers: bool = False, has_cf_headers: bool = False
     ):
         super().__init__(app)
         self.has_proxy_headers = has_proxy_headers
         self.has_cf_headers = has_cf_headers
-        self.debug_format = debug_format
-        self.msg_format = msg_format
-        self.use_debug_log = use_debug_log
 
-    async def dispatch(self, request: Request, call_next) -> Response:
-        _logger = logger.opt(colors=True, record=True)
+    async def dispatch(self, request: Request, call_next: Callable) -> Response:
+        _http_info: Dict[str, Any] = {}
+        if hasattr(request.state, "http_info") and isinstance(
+            request.state.http_info, dict
+        ):
+            _http_info: Dict[str, Any] = request.state.http_info
 
-        _http_info = {}
         _http_info["request_id"] = uuid4().hex
         if "X-Request-ID" in request.headers:
             _http_info["request_id"] = request.headers.get("X-Request-ID")
@@ -150,10 +135,8 @@ class HttpAccessLogMiddleware(BaseHTTPMiddleware):
         _http_info["url_path"] = request.url.path
         if "{" in _http_info["url_path"]:
             _http_info["url_path"] = _http_info["url_path"].replace("{", "{{")
-
         if "}" in _http_info["url_path"]:
             _http_info["url_path"] = _http_info["url_path"].replace("}", "}}")
-
         if request.url.query:
             _http_info["url_path"] = f"{request.url.path}?{request.url.query}"
 
@@ -172,26 +155,35 @@ class HttpAccessLogMiddleware(BaseHTTPMiddleware):
         if hasattr(request.state, "user_id"):
             _http_info["user_id"] = str(request.state.user_id)
 
-        ## Debug log:
-        if self.use_debug_log:
-            _debug_msg = self.debug_format.format(**_http_info)
-
-            # _logger.debug(_debug_msg)
-            await run_in_threadpool(
-                _logger.debug,
-                _debug_msg,
-            )
-        ## Debug log
-
         ## Set http info to request state:
         request.state.http_info = _http_info
+        response: Response = await call_next(request)
+        return response
 
-        _start_time = time.time()
+
+class ResponseHTTPInfoMiddleware(BaseHTTPMiddleware):
+    """Response HTTP info middleware for FastAPI.
+    Get HTTP info from response header and add it to `request.state.http_info`.
+
+    Inherits:
+        BaseHTTPMiddleware: Base HTTP middleware from Starlette.
+    """
+
+    async def dispatch(self, request: Request, call_next: Callable) -> Response:
+        _http_info: Dict[str, Any] = {}
+        _start_time: int = time.perf_counter_ns()
         ## Process request:
-        response = await call_next(request)
+        response: Response = await call_next(request)
         ## Response processed.
-        _http_info["response_time"] = round((time.time() - _start_time) * 1000, 1)
+        _end_time: int = time.perf_counter_ns()
+        _response_time: float = round((_end_time - _start_time) / 1_000_000, 1)
 
+        if hasattr(request.state, "http_info") and isinstance(
+            request.state.http_info, dict
+        ):
+            _http_info: Dict[str, Any] = request.state.http_info
+
+        _http_info["response_time"] = _response_time
         if "X-Process-Time" in response.headers:
             try:
                 _http_info["response_time"] = float(
@@ -222,41 +214,8 @@ class HttpAccessLogMiddleware(BaseHTTPMiddleware):
                     f"`Content-Length` header value '{response.headers.get('Content-Length')}' is invalid, should be parseable to <int>!"
                 )
 
-        try:
-            json.dumps(_http_info)
-        except TypeError:
-            logger.warning(
-                "Can not serialize `http_info` to json string in HttpAccessLogMiddleware!"
-            )
-
-        ## Http access log:
-        _LEVEL = "INFO"
-        _msg_format = self.msg_format
-        if _http_info["status_code"] < 200:
-            _LEVEL = "DEBUG"
-            _msg_format = f'<d>{_msg_format.replace("{status_code}", "<n><b><k>{status_code}</k></b></n>")}</d>'
-        elif (200 <= _http_info["status_code"]) and (_http_info["status_code"] < 300):
-            _LEVEL = "SUCCESS"
-            _msg_format = f'<w>{_msg_format.replace("{status_code}", "<lvl>{status_code}</lvl>")}</w>'
-        elif (300 <= _http_info["status_code"]) and (_http_info["status_code"] < 400):
-            _LEVEL = "INFO"
-            _msg_format = f'<d>{_msg_format.replace("{status_code}", "<n><b><c>{status_code}</c></b></n>")}</d>'
-        elif (400 <= _http_info["status_code"]) and (_http_info["status_code"] < 500):
-            _LEVEL = "WARNING"
-            _msg_format = _msg_format.replace("{status_code}", "<r>{status_code}</r>")
-        elif 500 <= _http_info["status_code"]:
-            _LEVEL = "ERROR"
-            _msg_format = (
-                f'{_msg_format.replace("{status_code}", "<n>{status_code}</n>")}'
-            )
-
-        _msg = _msg_format.format(**_http_info)
-        # _logger.bind(http_info=_http_info).log(_LEVEL, _msg)
-        await run_in_threadpool(
-            _logger.bind(http_info=_http_info).log,
-            _LEVEL,
-            _msg,
-        )
-        ## Http access log
-
+        request.state.http_info = _http_info
         return response
+
+
+__all__ = ["RequestHTTPInfoMiddleware", "ResponseHTTPInfoMiddleware"]
