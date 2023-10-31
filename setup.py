@@ -40,7 +40,7 @@ setup(
     python_requires=">=3.8",
     install_requires=[
         "fastapi>=0.99.1,<1.0.0",
-        "beans-logging>=5.0.0,<6.0.0",
+        "beans-logging>=6.0.0,<7.0.0",
     ],
     classifiers=[
         "Development Status :: 4 - Beta",
