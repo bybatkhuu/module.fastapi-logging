@@ -1,11 +1,8 @@
 # -*- coding: utf-8 -*-
 
-import logging
-
 import pytest
 
-
-logger = logging.getLogger(__name__)
+from beans_logging import logger
 
 
 @pytest.fixture(scope="session", autouse=True)
