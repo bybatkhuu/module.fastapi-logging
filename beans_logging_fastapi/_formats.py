@@ -22,7 +22,7 @@ def http_file_format(
     if "http_message" not in record:
         _http_info: Dict[str, Any] = record["extra"]["http_info"]
         if "datetime" not in _http_info:
-            _http_info["datetime"] = record["time"].isoformat()
+            _http_info["datetime"] = record["time"].isoformat(timespec="milliseconds")
 
         if "content_length" not in _http_info:
             _http_info["content_length"] = 0
@@ -59,7 +59,7 @@ def http_file_json_format(record: dict) -> str:
 
     _http_info: Dict[str, Any] = record["extra"]["http_info"]
     if "datetime" not in _http_info:
-        _http_info["datetime"] = record["time"].isoformat()
+        _http_info["datetime"] = record["time"].isoformat(timespec="milliseconds")
         record["extra"]["http_info"] = _http_info
 
     return "{extra[http_info]}\n"
