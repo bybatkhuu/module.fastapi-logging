@@ -146,6 +146,7 @@ logger:
     http_std_msg_format: '<n><w>[{request_id}]</w></n> {client_host} {user_id} "<u>{method} {url_path}</u> HTTP/{http_version}" {status_code} {content_length}B {response_time}ms'
     http_file_enabled: true
     http_file_format: '{client_host} {request_id} {user_id} [{datetime}] "{method} {url_path} HTTP/{http_version}" {status_code} {content_length} "{h_referer}" "{h_user_agent}" {response_time}'
+    http_file_tz: "localtime"
     http_log_path: "http/{app_name}.http.access.log"
     http_err_path: "http/{app_name}.http.err.log"
     http_json_enabled: true
@@ -180,7 +181,9 @@ logger: Logger = logger_loader.load()
 
 def _http_file_format(record: dict) -> str:
     _format = http_file_format(
-        record=record, msg_format=logger_loader.config.extra.http_file_format
+        record=record,
+        msg_format=logger_loader.config.extra.http_file_format,
+        tz=logger_loader.config.extra.http_file_tz,
     )
     return _format
 

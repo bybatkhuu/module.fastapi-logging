@@ -1,11 +1,13 @@
 # -*- coding: utf-8 -*-
 
 from typing import Dict, Any
+from zoneinfo import ZoneInfo
 
 
 def http_file_format(
     record: dict,
     msg_format: str = '{client_host} {request_id} {user_id} [{datetime}] "{method} {url_path} HTTP/{http_version}" {status_code} {content_length} "{h_referer}" "{h_user_agent}" {response_time}',
+    tz: str = "localtime",
 ) -> str:
     """Http access log file format.
 
@@ -22,7 +24,14 @@ def http_file_format(
     if "http_message" not in record:
         _http_info: Dict[str, Any] = record["extra"]["http_info"]
         if "datetime" not in _http_info:
-            _http_info["datetime"] = record["time"].isoformat(timespec="milliseconds")
+            _dt = record["time"]
+            if tz != "localtime":
+                if not _dt.tzinfo:
+                    _dt = _dt.replace(tzinfo=ZoneInfo("UTC"))
+
+                _dt = _dt.astimezone(ZoneInfo(tz))
+
+            _http_info["datetime"] = _dt.isoformat(timespec="milliseconds")
 
         if "content_length" not in _http_info:
             _http_info["content_length"] = 0
