@@ -137,6 +137,8 @@ class RequestHTTPInfoMiddleware(BaseHTTPMiddleware):
             _http_info["url_path"] = _http_info["url_path"].replace("{", "{{")
         if "}" in _http_info["url_path"]:
             _http_info["url_path"] = _http_info["url_path"].replace("}", "}}")
+        if "<" in _http_info["url_path"]:
+            _http_info["url_path"] = _http_info["url_path"].replace("<", "\<")
         if request.url.query:
             _http_info["url_path"] = f"{request.url.path}?{request.url.query}"
 
