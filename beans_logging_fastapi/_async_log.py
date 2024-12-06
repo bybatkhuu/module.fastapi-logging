@@ -2,14 +2,20 @@
 
 from typing import Dict, Any
 
-from pydantic import validate_arguments
+import pydantic
+
+if "2.0.0" <= pydantic.__version__:
+    from pydantic import validate_call
+else:
+    from pydantic import validate_arguments as validate_call
+
 from fastapi import Request
 from fastapi.concurrency import run_in_threadpool
 
 from beans_logging import logger, Logger
 
 
-@validate_arguments(config=dict(arbitrary_types_allowed=True))
+@validate_call(config={"arbitrary_types_allowed": True})
 async def async_log_http_error(
     request: Request,
     status_code: int,
@@ -35,7 +41,7 @@ async def async_log_http_error(
     await run_in_threadpool(_logger.error, _msg)
 
 
-@validate_arguments
+@validate_call
 async def async_log_trace(message: str):
     """Log trace message.
 
@@ -46,7 +52,7 @@ async def async_log_trace(message: str):
     await run_in_threadpool(logger.trace, message)
 
 
-@validate_arguments
+@validate_call
 async def async_log_debug(message: str):
     """Log debug message.
 
@@ -57,7 +63,7 @@ async def async_log_debug(message: str):
     await run_in_threadpool(logger.debug, message)
 
 
-@validate_arguments
+@validate_call
 async def async_log_info(message: str):
     """Log info message.
 
@@ -68,7 +74,7 @@ async def async_log_info(message: str):
     await run_in_threadpool(logger.info, message)
 
 
-@validate_arguments
+@validate_call
 async def async_log_success(message: str):
     """Log success message.
 
@@ -79,7 +85,7 @@ async def async_log_success(message: str):
     await run_in_threadpool(logger.success, message)
 
 
-@validate_arguments
+@validate_call
 async def async_log_warning(message: str):
     """Log warning message.
 
@@ -90,7 +96,7 @@ async def async_log_warning(message: str):
     await run_in_threadpool(logger.warning, message)
 
 
-@validate_arguments
+@validate_call
 async def async_log_error(message: str):
     """Log error message.
 
@@ -101,7 +107,7 @@ async def async_log_error(message: str):
     await run_in_threadpool(logger.error, message)
 
 
-@validate_arguments
+@validate_call
 async def async_log_critical(message: str):
     """Log critical message.
 
@@ -112,7 +118,7 @@ async def async_log_critical(message: str):
     await run_in_threadpool(logger.critical, message)
 
 
-@validate_arguments
+@validate_call
 async def async_log_level(level: str, message: str):
     """Log level message.
 
